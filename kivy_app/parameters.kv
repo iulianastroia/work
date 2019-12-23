@@ -1,0 +1,177 @@
+<ParametersPopUp>:
+
+#parameters_popup.py
+    orientation: 'vertical'
+#    RelativeLayout:
+    BoxLayout:
+        size_hint_y: 0.1
+
+    RelativeLayout:
+        size_hint_y: 2 #whole text is fit
+        GridLayout:
+            cols: 4
+            text_size:self.size
+            Label:
+                text:'AQI'
+                text_size:self.size
+
+            Label:
+                text:'Air Pollution Level'
+                text_size:self.size
+                size_hint_x:2
+
+
+            Label:
+                text:'Health Implications'
+                size_hint_x:4
+                text_size:self.size
+
+            Label:
+                text:'Recommended Precautions'
+                size_hint_x:4
+                text_size:self.size
+
+            Label:
+                text:'0-50'
+                text_size:self.size
+                color: 0,1,0,1
+
+            Label:
+                text:'Good'
+                text_size:self.size
+                color: 0,1,0,1
+            Label:
+                text:'Air quality is satisfactory.'
+                size_hint_x:2
+                text_size:self.size
+                color: 0,1,0,1
+
+            Label:
+                size_hint_x:4
+                text:'Everyone can continue their outdoor activities normally.'
+                size_hint_y:2
+                text_size:self.size
+                color: 0,1,0,1
+
+            Label:
+                text:'51-100'
+                text_size:self.size
+                color: 239/255,251/255,46/255,1
+
+            Label:
+                text:'Moderate'
+                text_size:self.size
+                color: 239/255,251/255,46/255,1
+
+            Label:
+                text:'Air quality is acceptable. Some pollutants may represent a concern.'
+                text_size:self.size
+                size_hint_y:2
+                color: 239/255,251/255,46/255,1
+
+            Label:
+                text:'Only very few hypersensitive people should reduce outdoor activities.'
+                text_size:self.size
+                size_hint_y:2
+                color: 239/255,251/255,46/255,1
+
+            Label:
+                text:'101-150'
+                text_size:self.size
+                color: 243/255,167/255,25/255,1
+
+            Label:
+                text:'Unhealthy for sensitive groups'
+                text_size:self.size
+                color: 243/255,167/255,25/255,1
+
+            Label:
+                text:'Sensitive groups may sense health effects. The general public is not likely to be affected.'
+                text_size:self.size
+                size_hint_y:2
+                color: 243/255,167/255,25/255,1
+
+            Label:
+                text_size:self.size
+                text:'Children, active adults and people with respiratory disease should limit exposure time to pollution. '
+                size_hint_y:2
+                color: 243/255,167/255,25/255,1
+
+            Label:
+                text:'151-200'
+                text_size:self.size
+                color: 1,0,0,1
+
+            Label:
+                text:'Unhealthy'
+                text_size:self.size
+                color: 1,0,0,1
+
+            Label:
+                text:'Everyone may begin to experience health effects; members of sensitive groups may experience more serious health effects.'
+                text_size:self.size
+                size_hint_y:2
+                color: 1,0,0,1
+
+            Label:
+                text:'Children, active adults and people with respiratory disease should avoid prolonged exposure to pollution.'
+                text_size:self.size
+                size_hint_y:2
+                color: 1,0,0,1
+
+            Label:
+                text:'201-300'
+                text_size:self.size
+                color: 117/255,4/255,124/255,1
+                size_hint_y:2
+
+            Label:
+                text:'Very Unhealthy'
+                text_size:self.size
+                size_hint_y:2
+                color: 117/255,4/255,124/255,1
+
+            Label:
+                text:'Health warnings of emergency conditions. The \nentire population is more likely to be affected. '
+                text_size:self.size
+                size_hint_y:2
+                color: 117/255,4/255,124/255,1
+
+            Label:
+                text:'Children and active adults and people with respiratory disease should avoid any outdoor activity. Anyone else should limit outdoor exertion.'
+                text_size:self.size
+                size_hint_y:2.5
+                color: 117/255,4/255,124/255,1
+
+            Label:
+                text:'300+'
+                text_size:self.size
+                size_hint_y:2
+                color: 150/255,20/255,15/255,1
+
+            Label:
+                text:'Hazardous'
+                text_size:self.size
+                size_hint_y:2
+                color: 150/255,20/255,15/255,1
+
+            Label:
+                text:'Health alert: everyone may experience more serious health effects.'
+                text_size:self.size
+                size_hint_y:2
+                color: 150/255,20/255,15/255,1
+
+            Label:
+                text:'Everyone should avoid all outdoor exertion.'
+                text_size:self.size
+                size_hint_y:2
+                color: 150/255,20/255,15/255,1
+
+    BoxLayout:
+        size_hint_y: 0.4
+
+        Button:
+            text:"Close"
+            size_hint:0.8,0.09
+            pos_hint:{"x":0.1,"top":0.1}
+            on_release: root.close_popup()

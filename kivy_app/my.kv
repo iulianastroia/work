@@ -22,6 +22,7 @@
 #        source: r'D:/uradmonitor/DATA VISUALIZATION uradmonitor----Brasov 82000169/data study/tlc plot/temperature.jpg'
 #        size_hint: 1,1
     ActionBar:
+
         pos_hint: {'top':1}
         ActionView:
             use_separator: True
@@ -73,15 +74,24 @@
                 ActionButton:
                     id:contact
                     text: 'Contact'
+                    on_release:root.display_popup(self)
+
                 ActionButton:
                     id:help
                     text: 'Help'
+                    on_release:root.display_popup(self)
+
                 ActionButton:
                     id:sensors_used
                     text: 'Sensors'
+                    on_release:root.display_popup(self)
+
                 ActionButton:
                     id:feedback
                     text: 'Feedback'
+                    on_release:root.display_popup(self)
+
                 ActionButton:
                     id:parameters
                     text: 'Parameters'
+                    on_release:root.display_popup(self)

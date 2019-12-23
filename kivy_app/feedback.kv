@@ -1,0 +1,35 @@
+<FeedBackPopUp>:
+#feedback_popup.py
+    email:email
+    password:password
+    feedback_message:feedback_message
+    orientation: 'vertical'
+    GridLayout:
+        cols:1
+        GridLayout:
+            cols:2
+            Label:
+                text: "E-mail: "
+            TextInput:
+                multiline:False
+                id:email
+
+            Label:
+                text: "Password: "
+            TextInput:
+                multiline:False
+                id:password
+                password:True
+
+            Label:
+                text: "Send message as feedback: "
+
+            TextInput:
+                multiline:True
+                id:feedback_message
+        Button:
+            text:"Send e-mail to developer"
+            size_hint:0.8,0.09
+            pos_hint:{"x":0.1,"top":0.1}
+            on_release: root.send_email()
+

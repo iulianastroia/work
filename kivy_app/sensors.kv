@@ -1,0 +1,172 @@
+<SensorsPopUp>:
+#sensors_popup.py
+#source:https://www.who.int/airpollution/publications/aqg2005/en/
+    orientation: 'vertical'
+    BoxLayout:
+        size_hint_y: 0.1
+        Label:
+            text:'Pollutant'
+            size_hint_x: 0.25
+        Label:
+            text:'Concentration'
+            size_hint_x: 0.25
+        Label:
+            text:'Average period'
+            size_hint_x: 0.25
+
+    BoxLayout:
+        size_hint_y: 0.1
+        Label:
+            text:'Ozone'
+            size_hint_x: 0.25
+            color:122/255,233/255,126/255,1
+        Label:
+            text:'100 \u03BCg/m\u00b3'
+            size_hint_x: 0.25
+            color:122/255,233/255,126/255,1
+
+        Label:
+            text:'Maximum daily 8 hour mean'
+            size_hint_x: 0.25
+            color:122/255,233/255,126/255,1
+
+    BoxLayout:
+        size_hint_y: 0.1
+        GridLayout:
+            cols:3
+            Label:
+                text:'Pm 2.5'
+                size_hint_x: 0.25
+                color:128/255,184/255,222/255,1
+
+            Label:
+                text:'10 \u03BCg/m\u00b3'
+                size_hint_x: 0.25
+                color:128/255,184/255,222/255,1
+
+            Label:
+                text:'1 year'
+                size_hint_x: 0.25
+                color:128/255,184/255,222/255,1
+
+            Label:
+                text:''
+                size_hint_x: 0.25
+                color:128/255,184/255,222/255,1
+
+            Label:
+                text:'25 \u03BCg/m\u00b3'
+                size_hint_x: 0.25
+                color:128/255,184/255,222/255,1
+
+            Label:
+                text:'24 h'
+                size_hint_x: 0.25
+                color:128/255,184/255,222/255,1
+
+
+    BoxLayout:
+        size_hint_y: 0.1
+        GridLayout:
+            cols:3
+            Label:
+                text:'Pm 10'
+                size_hint_x: 0.25
+                color:122/255,233/255,126/255,1
+
+            Label:
+                text:'50 \u03BCg/m\u00b3'
+                size_hint_x: 0.25
+                color:122/255,233/255,126/255,1
+
+            Label:
+                text:'24 hours'
+                size_hint_x: 0.25
+                color:122/255,233/255,126/255,1
+
+            Label:
+                text:''
+                size_hint_x: 0.25
+                color:122/255,233/255,126/255,1
+
+            Label:
+                text:'20 \u03BCg/m\u00b3'
+                size_hint_x: 0.25
+                color:122/255,233/255,126/255,1
+
+            Label:
+                text:'1 year'
+                size_hint_x: 0.25
+                color:122/255,233/255,126/255,1
+
+#pag 138 http://www.euro.who.int/__data/assets/pdf_file/0009/128169/e94535.pdf
+    BoxLayout:
+
+        size_hint_y: 0.1
+        GridLayout:
+            cols:3
+
+            Label:
+                text:'Ch2o'
+                size_hint_x: 0.25
+                color:128/255,184/255,222/255,1
+
+            Label:
+                text:'10 \u03BCg/m\u00b3'
+                size_hint_x: 0.25
+                color:128/255,184/255,222/255,1
+
+            Label:
+                text:'General'
+                size_hint_x: 0.25
+                color:128/255,184/255,222/255,1
+
+            Label:
+                text:''
+                size_hint_x: 0.25
+
+            Label:
+                text:'20 \u03BCg/m\u00b3'
+                size_hint_x: 0.25
+                color:128/255,184/255,222/255,1
+
+            Label:
+                text:'Highly urbanized areas'
+                size_hint_x: 0.25
+                color:128/255,184/255,222/255,1
+
+
+#TODO: add values for co2 and pm1
+    BoxLayout:
+        size_hint_y: 0.1
+        Label:
+            text:'co2'
+            size_hint_x: 0.25
+            color:122/255,233/255,126/255,1
+
+        Label:
+            text:'co2 %'
+            size_hint_x: 0.25
+            color:122/255,233/255,126/255,1
+
+        Label:
+            text:'co2 avg'
+            size_hint_x: 0.25
+            color:122/255,233/255,126/255,1
+
+    BoxLayout:
+        size_hint_y: 0.1
+        Label:
+            text:'Pm1'
+            size_hint_x: 0.25
+            color:128/255,184/255,222/255,1
+
+        Label:
+            text:'pm 1%'
+            size_hint_x: 0.25
+            color:128/255,184/255,222/255,1
+
+        Label:
+            text:'pm 1 avg'
+            size_hint_x: 0.25
+            color:128/255,184/255,222/255,1

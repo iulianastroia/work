@@ -1,0 +1,28 @@
+<ContactPopUp>:
+#pop_up.py
+    Label:
+        text:"Name: Stroia Iuliana"
+        size_hint:0.4,0.2
+        pos_hint:{"x":0.2,"top":0.9}
+        halign:'left'
+        size_hint_x:4
+        text_size:self.size
+    Label:
+        text:"E-mail: iuliana.stroia97@gmail.com"
+        size_hint:0.6,0.2
+        pos_hint:{"x":0.2,"top":0.8}
+        halign:'left'
+        size_hint_x:4
+        text_size:self.size
+    Label:
+        text:"Phone number: 0725560706"
+        size_hint:0.6,0.2
+        pos_hint:{"x":0.2,"top":0.7}
+        halign:'left'
+        size_hint_x:4
+        text_size:self.size
+    Button:
+        text:"Close"
+        size_hint:0.8,0.09
+        pos_hint:{"x":0.1,"top":0.1}
+        on_release: root.close_popup()
