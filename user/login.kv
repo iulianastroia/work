@@ -1,0 +1,114 @@
+#:import _ kniteditor.localization._
+<Login>:
+    username:username
+    password:password
+    error_message:error_message
+    login_button:login_button
+    show_password:show_password
+    signup_button:signup_button
+    ss:ss
+    ss2:ss2
+
+    CustomButton:
+        id:ss
+        text: _("En")
+        size_hint: 0.1,0.07
+        pos_hint: {"x":0, "y":0.0009}
+        font_size: (root.width**2 + root.height**2) / 14**4
+        bg_color:128/255,184/255,222/255,1
+        color:0,0,0,1
+        on_press:
+            root.translate()
+#            root.check_login()
+
+    CustomButton:
+        id:ss2
+        text: _("Ro")
+        size_hint: 0.1,0.07
+        pos_hint: {"x":0, "y":0.1}
+        font_size: (root.width**2 + root.height**2) / 14**4
+        bg_color:128/255,184/255,222/255,1
+        color:0,0,0,1
+        on_press:
+            root.translate_ro()
+            #TODO translate error_message
+#            root.check_login()
+
+    CustomLabel:
+        text:_("Username:")
+        size_hint: 0.5,0.12
+        pos_hint: {"x":0, "top":0.8-0.13}
+        font_size: (root.width**2 + root.height**2) / 14**4
+
+    CustomTextInput:
+        hint_text:_("username")
+        write_tab: False #makes TAB work
+        id:username
+        pos_hint: {"x":0.5, "top":0.8-0.13}
+        size_hint: 0.4, 0.12
+        multiline: False
+        font_size: (root.width**2 + root.height**2) / 14**4
+        on_text_validate: password.focus = True #makes enter work->press enter to login
+
+    CustomLabel:
+        id:error_message
+        pos_hint: {"x":0.1, "top":1-0.13}
+        size_hint:0.85,0.12
+        text:_(" ")
+
+    CustomLabel:
+        text:_("Password:")
+        size_hint: 0.5,0.12
+        pos_hint: {"x":0, "top":0.8-0.13*2}
+        font_size: (root.width**2 + root.height**2) / 14**4
+
+
+    CustomTextInput:
+        hint_text:_("password")
+        write_tab: False
+        password:True
+        id:password
+        pos_hint: {"x":0.5, "top":0.8-0.13*2}
+        size_hint: 0.4, 0.12
+        multiline: False
+        font_size: (root.width**2 + root.height**2) / 14**4
+        on_text_validate: login_button.focus = True
+
+
+    CheckBox:
+        id:show_password
+        pos_hint:{"x":0.3,"y":0.35}
+        size_hint: 0.4, 0.07
+        font_size: (root.width**2 + root.height**2) / 17**4
+        on_press:
+            root.show_hide_pass()
+
+
+    CustomLabel:
+        pos_hint:{"x":0.4,"y":0.35}
+        size_hint: 0.4, 0.07
+        font_size: (root.width**2 + root.height**2) / 17**4
+        text:_("Show password")
+
+
+    CustomButton:
+        id:signup_button
+        pos_hint:{"x":0.3,"y":0.25}
+        size_hint: 0.4, 0.07
+        font_size: (root.width**2 + root.height**2) / 17**4
+        text: _("Sign up")
+        on_press:
+            root.manager.current = 'create_account'
+            root.clear_login()
+
+    CustomButton:
+        id:login_button
+        focus:False
+        pos_hint:{"x":0.3,"y":0.15}
+        size_hint: 0.4, 0.07
+        font_size: (root.width**2 + root.height**2) / 17**4
+        text:_("Login")
+
+        on_press:
+            root.check_login()
+            root.store_username()

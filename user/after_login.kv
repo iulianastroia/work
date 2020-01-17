@@ -1,0 +1,165 @@
+#:import _ kniteditor.localization._
+<AfterLogin>:
+    first_name: first_name
+    last_name:last_name
+    email: email
+    phone:phone
+    username_after:username_after
+    password: password
+    error_message:error_message
+    save_changes:save_changes
+    show_password:show_password
+    FloatLayout:
+        cols:1
+
+        FloatLayout:
+            size: root.width, root.height/2
+            CustomLabel:
+                id:error_message
+                size_hint: 0.8, 0.2
+                pos_hint: {"x":0.1, "y":0.75}
+                font_size: (root.width**2 + root.height**2) / 16**4
+                color:1,0,0,1
+
+            CustomLabel:
+                text: _("Edit your account")
+                underline:True
+                size_hint: 0.8, 0.2
+                pos_hint: {"x":0.1, "top":1}
+                font_size: (root.width**2 + root.height**2) / 16**4
+                color:0,200/255,150/255,1
+
+            CustomLabel:
+                pos_hint: {"x":0, "top":0.8}
+                size_hint: 0.5,0.06
+                text: _("First Name:")
+                font_size: (root.width**2 + root.height**2) / 16**4
+
+            CustomTextInput:
+                write_tab: False
+                pos_hint: {"x":0.38, "top":0.8} #same x for everyone
+                size_hint: 0.45,0.05#long, height
+                id: first_name
+                hint_text:_("first name")
+                multiline: False
+                font_size: (root.width**2 + root.height**2) / 16**4
+                on_text_validate: last_name.focus = True #makes enter work->press enter to login
+
+            CustomLabel:
+                pos_hint: {"x":0, "top":0.72}
+                size_hint: 0.5,0.06
+                text: _("Last Name:")
+                font_size: (root.width**2 + root.height**2) / 16**4
+
+            CustomTextInput:
+                id: last_name
+                write_tab: False
+                pos_hint: {"x":0.38, "top":0.72}
+                size_hint: 0.45,0.05
+                hint_text:_("last name")
+                multiline: False
+                font_size: (root.width**2 + root.height**2) / 16**4
+                on_text_validate: email.focus = True
+
+            CustomLabel:
+                size_hint: 0.5,0.06
+                pos_hint: {"x":0, "top":0.64}
+                text: _("*E-mail:")
+                font_size: (root.width**2 + root.height**2) / 16**4
+                color:1,0,0,1
+
+            CustomTextInput:
+                id: email
+                write_tab: False
+                size_hint: 0.45,0.05
+                pos_hint: {"x":0.38, "top":0.64}
+                hint_text:_("e-mail")
+                multiline: False
+                font_size: (root.width**2 + root.height**2) / 16**4
+                on_text_validate: phone.focus = True
+
+            CustomLabel:
+                size_hint: 0.5,0.06
+                pos_hint: {"x":0, "top":0.56}
+                text: _("Phone:")
+                font_size: (root.width**2 + root.height**2) / 16**4
+
+            CustomTextInput:
+                id: phone
+                write_tab: False
+                size_hint: 0.45,0.05
+                pos_hint: {"x":0.38, "top":0.56}
+                multiline: False
+                hint_text:_("phone")
+                font_size: (root.width**2 + root.height**2) / 16**4
+                on_text_validate: username_after.focus = True
+
+            CustomLabel:
+                size_hint: 0.5,0.06
+                pos_hint: {"x":0, "top":0.48}
+                text: _("*Username:")
+                color:1,0,0,1
+                font_size: (root.width**2 + root.height**2) / 16**4
+
+            CustomTextInput:
+                id: username_after
+                write_tab: False
+                size_hint: 0.45,0.05
+                pos_hint: {"x":0.38, "top":0.48}
+                multiline: False
+                font_size: (root.width**2 + root.height**2) / 16**4
+                hint_text:_("username")
+                on_text_validate: password.focus = True
+                disabled:True
+
+            CustomLabel:
+                size_hint: 0.5,0.06
+                pos_hint: {"x":0, "top":0.4}
+                text: _("*Password:")
+                color:1,0,0,1
+                font_size: (root.width**2 + root.height**2) / 16**4
+
+            CustomTextInput:
+                id: password
+                write_tab: False
+                size_hint: 0.45,0.05
+                pos_hint: {"x":0.38, "top":0.4}
+                multiline: False
+                password: True
+                font_size: (root.width**2 + root.height**2) / 16**4
+                hint_text:_("password")
+                on_text_validate: register_button.focus = True
+
+
+        CheckBox:
+            id:show_password
+            size_hint: 0.45,0.05
+            pos_hint: {"x":0.25, "top":0.35}
+            font_size: (root.width**2 + root.height**2) / 17**4
+            on_press:root.show_hide_pass()
+
+        CustomLabel:
+            size_hint: 0.45,0.05
+            pos_hint: {"x":0.35, "top":0.35}
+            font_size: (root.width**2 + root.height**2) / 17**4
+            text:_("Show password")
+
+
+
+        CustomButton:
+            pos_hint:{"x":0.3,"y":0.2}
+            size_hint: 0.4, 0.07
+            font_size: (root.width**2 + root.height**2) / 17**4
+            text: _("Back")
+            on_press:
+                root.manager.current = 'login'
+
+        CustomButton:
+            id:save_changes
+            size_hint: 0.4, 0.07
+            text: _("Save changes")
+            pos_hint:{"x":0.3,"y":0.10}
+            font_size: (root.width**2 + root.height**2) / 17**4
+            on_press:
+#                root.manager.current = 'create_account'
+                root.print_something()
