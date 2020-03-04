@@ -17,13 +17,16 @@ data = pd.read_csv("https://raw.githubusercontent.com/iulianastroia/csv_data/mas
 # convert day to pandas datetime format
 data['day'] = pd.to_datetime(data['day'], dayfirst=True)
 
+# modify name with any sensor name from df
+sensor_name = 'pm25'
+
 # sort values by day
-data = data.sort_values(by=['day'])
+data = data.sort_values(by=['readable time'])
 print("sorted days", data.day)
 
 # create mean of values by days
-group_by_df = pd.DataFrame([name, group.mean().pm25] for name, group in data.groupby('day'))
-group_by_df.columns = ['day', 'pm25']
+group_by_df = pd.DataFrame([name, group.mean()[sensor_name]] for name, group in data.groupby('day'))
+group_by_df.columns = ['day', sensor_name]
 
 group_by_df['day'] = pd.to_datetime(group_by_df['day'])
 # convert day column to needed(supported) date format
@@ -32,7 +35,7 @@ print(group_by_df)
 
 # reshape dataframe for training+testing
 X = group_by_df['day'].values.reshape(-1, 1)
-y = group_by_df['pm25'].values.reshape(-1, 1)
+y = group_by_df[sensor_name].values.reshape(-1, 1)
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, shuffle=False)
 
 # convert to original date format
@@ -46,7 +49,7 @@ def analyse_forecast():
     real_data_list = []
     difference_list = []
     for i in range(len(group_by_df)):
-        real_data_list.append(group_by_df['pm25'][i])
+        real_data_list.append(group_by_df[sensor_name][i])
 
     predicted_list = pol_reg.predict(poly_reg.fit_transform(X))
     predicted_list = [arr.tolist() for arr in predicted_list]
@@ -56,8 +59,8 @@ def analyse_forecast():
 
     print("max forecasting DIFF", max(difference_list))
     print("min forecasting DIFF", min(difference_list))
-    print("MSE(mean squared error)", mean_squared_error(group_by_df['pm25'], predicted_list))
-    return mean_squared_error(group_by_df['pm25'], predicted_list)
+    print("MSE(mean squared error)", mean_squared_error(group_by_df[sensor_name], predicted_list))
+    return mean_squared_error(group_by_df[sensor_name], predicted_list)
 
 
 # calculate maximum polynomial grade
@@ -88,11 +91,11 @@ for count, degree in enumerate([i + 1 for i in range(0, max_grade)]):
 # plot actual values
 fig.add_trace(go.Scatter(
     x=group_by_df['day'],
-    y=group_by_df['pm25'],
+    y=group_by_df[sensor_name],
     name='ACTUAL values',
     mode='lines+markers'))
 
-fig.update_layout(title='Comparison between predicted values and real ones for November 2019', yaxis_title='Pm2.5',
+fig.update_layout(title='Comparison between predicted values and real ones for November 2019', yaxis_title=sensor_name,
                   xaxis_title='Day',
                   showlegend=True)
 fig.show()

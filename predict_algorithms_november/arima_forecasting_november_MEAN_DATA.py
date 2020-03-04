@@ -1,6 +1,7 @@
 import pandas as pd
 from datetime import datetime
 import matplotlib.pylab as plt
+from pmdarima.model_selection import train_test_split
 from statsmodels.tsa.ar_model import AR, AR_DEPRECATION_WARN
 from sklearn.metrics import mean_squared_error
 from statsmodels.tsa.arima_model import ARIMA
@@ -42,23 +43,37 @@ plt.show()
 X = data.values
 print("length of input values", len(X))
 # ~70% of data->training
-train = X[0:21]  # 21 data as train
-print("length of train values", len(train))
+# train = X[0:21]  # 21 data as train
+
+#
+y_train, y_test = train_test_split(X, test_size=0.3,
+                                   # shuffle=False)
+                                   )
+print("y train", y_train)
+print("y test", y_test)
+
+#
+
+
+print("length of train values", len(y_train))
+# print("length of train values", len(train))
 # ~30% to test, 9 data as test
-test = X[21:]
-print("length of test values", len(test))
+# test = X[21:]
+# print("length of test values", len(test))
+print("length of test values", len(y_test))
 predictions = []
 
 # train forecasting model
-model_ar = AR(train)
+model_ar = AR(y_train)
 model_ar_fit = model_ar.fit()
 
 # predict
-predictions = model_ar_fit.predict(start=21, end=30)
+# predictions = model_ar_fit.predict(start=21, end=30)
+predictions = model_ar_fit.predict(start=len(y_train), end=len(data))
 print("length of predictions", len(predictions))
 
 # plot test data against predicted data
-plt.plot(test, label="test data")
+plt.plot(y_test, label="test data")
 plt.plot(predictions, color='red', label='predicted data')
 plt.legend(loc="upper left")
 plt.show()
@@ -68,14 +83,14 @@ plt.show()
 # p=periods taken for autoregressive model:may=1; april, may=2
 # d=integrated order, how many times difference is done
 # q=no of periods in moving average model
-model_arima = ARIMA(train, order=(1, 0, 0))
+model_arima = ARIMA(y_train, order=(1, 0, 0))
 # model_arima = ARIMA(train, order=(4, 2, 0))
 model_arima_fit = model_arima.fit()
 # CHANGE VALUES (p,d,q) until AIC is MINIMUM
 print("model_arima_fit.aic SHOULD HAVE minimum value", model_arima_fit.aic)
 
 # predict 7 values
-predictions = model_arima_fit.forecast(steps=9)[0]
+predictions = model_arima_fit.forecast(steps=len(y_test))[0]
 
 p = d = q = range(0, 5)
 # all combinations of p,d,q
@@ -84,29 +99,29 @@ print('all pdq possible combinations', pdq)
 
 for param in pdq:
     try:
-        model_arima = ARIMA(train, order=param)
+        model_arima = ARIMA(y_train, order=param)
         model_arima_fit = model_arima.fit()
         # CHANGE VALUES (p,d,q) until AIC is MINIMUM
         print("param (p,d,q) and values of aic", param, model_arima_fit.aic)
     except:
         continue
 
-print("test data ", test)
-print("test data lenght", len(test))
+print("test data ", y_test)
+print("test data lenght", len(y_test))
 print("predicted", predictions)
 print("predicted", predictions)
 print("length of predicted", len(predictions))
 
 difference_true_pred = []
-for i in range(0, len(test)):
-    difference_true_pred.append(abs((test[i] - predictions[i])))
+for i in range(0, len(y_test)):
+    difference_true_pred.append(abs((y_test[i] - predictions[i])))
     min_Val = min(difference_true_pred)
     max_Val = max(difference_true_pred)
 print("min is ", min_Val)
 print("max is ", max_Val)
 
-print(test)
-print(type(test))
+print(y_test)
+print(type(y_test))
 
 import numpy as np
 
@@ -115,7 +130,7 @@ group_by_df = pd.DataFrame(
 group_by_df.columns = ['day', 'pm25']
 
 prediction_df = group_by_df.copy()
-prediction_df[:21] = np.nan
+prediction_df[:len(y_train)] = np.nan
 prediction_df.columns = ['day', 'pm25']
 
 prediction_df.dropna(axis='columns', how='all', inplace=True)
@@ -138,4 +153,4 @@ fig.add_trace(go.Scatter(
 ))
 
 fig.show()
-print("MSE(mean squared error)", mean_squared_error(test, predictions))
+print("MSE(mean squared error)", mean_squared_error(y_test, predictions))

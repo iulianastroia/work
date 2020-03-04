@@ -9,7 +9,7 @@ from sklearn.metrics import mean_absolute_error, mean_squared_error
 # read csv
 # november data
 data = pd.read_csv("https://raw.githubusercontent.com/iulianastroia/csv_data/master/final_dataframe.csv")
-
+print("LEN", len(data))
 # drop Nan columns and indexes
 data.dropna(axis='columns', how='all', inplace=True)
 data.dropna(axis='index', how='all', inplace=True)
@@ -17,21 +17,24 @@ data.dropna(axis='index', how='all', inplace=True)
 # convert to date format
 data['day'] = pd.to_datetime(data['day'], dayfirst=True)
 
+# modify name with any sensor name from df
+sensor_name = 'pm25'
+
 # sort dates by day
 data = data.sort_values(by=['day'])
 print("sorted days", data.day)
 
 group_by_df = pd.DataFrame(
-    [name, group.mean().pm25] for name, group in data.groupby('day')
+    [name, group.mean()[sensor_name]] for name, group in data.groupby('day')
 )
-group_by_df.columns = ['day', 'pm25']
+group_by_df.columns = ['day', sensor_name]
 
 # plot groupby df
-fig = go.Figure(data=go.Scatter(x=group_by_df['day'], y=group_by_df['pm25']))
+fig = go.Figure(data=go.Scatter(x=group_by_df['day'], y=group_by_df[sensor_name]))
 fig.update_layout(
-    title='Pm2.5 REAL mean values for November',
+    title=sensor_name + ' REAL mean values for November',
     xaxis_title="Day",
-    yaxis_title="Pm2.5")
+    yaxis_title=sensor_name)
 fig.show()
 
 # group df by day
@@ -39,13 +42,10 @@ grp_date = data.groupby('day')
 
 # calculate mean value  for every given day
 data = pd.DataFrame(grp_date.mean())
-print("MEAN pm25 values by day\n", data.pm25)
+print("MEAN " + sensor_name + " values by day\n", data[sensor_name])
 
-# drop unnecessary columns(all but day and pm25)
-cols_to_drop = ['time', 'latitude', 'longitude', 'altitude', 'o3', 'pressure', 'temperature', 'pm1', 'pm10', 'ch2o',
-                'co2']
-data = data.drop(cols_to_drop, axis=1)
-print(data.head())
+# select needed data
+data = data[[sensor_name]]
 
 # start using prophet
 logging.getLogger().setLevel(logging.ERROR)
@@ -68,15 +68,15 @@ print(forecast[['ds', 'yhat', 'yhat_lower', 'yhat_upper']])
 # plot predictions
 fig = plot_plotly(m, forecast)
 fig.update_layout(
-    title='Pm2.5 forecast for November-December 2019',
+    title=sensor_name + ' forecast for November-December 2019',
     xaxis_title="Day",
-    yaxis_title="Pm2.5")
+    yaxis_title=sensor_name)
 fig.show()
 
 # check if there is seasonality+trend
 fig = plot_components_plotly(m, forecast)
 fig.update_layout(
-    title='Pm2.5 characteristics-seasonality'
+    title=sensor_name + " characteristics-seasonality"
 )
 fig.show()
 
@@ -126,7 +126,7 @@ fig.add_trace(go.Scatter(
     mode='lines+markers'
 
 ))
-fig.update_layout(title='Comparison between predicted values and real ones', yaxis_title='Pm2.5', xaxis_title='Day',
+fig.update_layout(title='Comparison between predicted values and real ones', yaxis_title=sensor_name, xaxis_title='Day',
                   showlegend=True)
 fig.show()
 
