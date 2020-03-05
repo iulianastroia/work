@@ -89,6 +89,17 @@ def make_comparison_dataframe(historical, forecast):
 cmp_df = make_comparison_dataframe(df, forecast)
 print("COMPARED DF of predicted and real values\n", cmp_df)
 
+# add new column with default value
+cmp_df['outlier_detected'] = 0
+for i in range(len(cmp_df)):
+    # detect outliers
+    if (cmp_df['y'][i] > cmp_df['yhat_upper'][i] or cmp_df['y'][i] < cmp_df['yhat_lower'][i]):
+        cmp_df['outlier_detected'][i] = 1
+    else:
+        cmp_df['outlier_detected'][i] = 0
+print("DF of outlier", cmp_df)
+print(["outlier DET" for i in range(len(cmp_df)) if cmp_df['outlier_detected'][i] == 1])
+
 # plot forecast with upper and lower bound
 fig = go.Figure()
 
@@ -97,15 +108,33 @@ fig.add_trace(go.Scatter(
     x=group_by_df['day'],
     y=cmp_df['yhat'],
     name='yhat(predicted value)',
-    mode='lines+markers'
+    mode='lines+markers',
+    line=dict(
+        color='rgb(95,158,160)'),
+    marker=dict(
+        color='rgb(95,158,160)')
 ))
+
+# actual value
+fig.add_trace(go.Scatter(
+    x=group_by_df['day'],
+    y=cmp_df['y'],
+    name='y(actual value)',
+    mode='lines+markers',
+    line=dict(
+        color='rgb(75,0,130)'),
+    marker=dict(color=np.where(cmp_df['outlier_detected'] == 1, 'red', 'rgb(75,0,130)'))))
 
 # lower bound of predicted value
 fig.add_trace(go.Scatter(
     x=group_by_df['day'],
     y=cmp_df['yhat_lower'],
     name='yhat_lower',
-    mode='lines+markers'
+    mode='lines+markers',
+    line=dict(
+        color='rgb(205,92,92)'),
+    marker=dict(
+        color='rgb(205,92,92)')
 
 ))
 
@@ -114,18 +143,13 @@ fig.add_trace(go.Scatter(
     x=group_by_df['day'],
     y=cmp_df['yhat_upper'],
     name='yhat_upper',
-    mode='lines+markers'
-
+    mode='lines+markers',
+    line=dict(
+        color='rgb(65,105,225)'),
+    marker=dict(
+        color='rgb(65,105,225)')
 ))
 
-# actual value
-fig.add_trace(go.Scatter(
-    x=group_by_df['day'],
-    y=cmp_df['y'],
-    name='y(actual value)',
-    mode='lines+markers'
-
-))
 fig.update_layout(title='Comparison between predicted values and real ones', yaxis_title=sensor_name, xaxis_title='Day',
                   showlegend=True)
 fig.show()
