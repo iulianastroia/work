@@ -132,20 +132,16 @@ fig = go.Figure()
 
 # create list of real values(actual) and forecasted values
 # also, calculate the difference between them for every point in dataframe
-# return the MSE for each grade used for polynomial forecasting
-def analyse_forecast():
-    real_data_list = []
-    difference_list = []
-
-    predicted_list = pol_reg.predict(poly_reg.fit_transform(X))
+# return the MSE for each grade used for regression forecasting
+def analyse_forecast(dataframe_name,predicted_list, regression_type):
+    # predicted_list = pol_reg.predict(poly_reg.fit_transform(X))
     predicted_list = [arr.tolist() for arr in predicted_list]
-    print(bcolors.OKBLUE + "MSE polynomial regression(mean squared error)",
-          mean_squared_error(group_by_df[sensor_name], predicted_list), bcolors.ENDC)
-    print("r2 score ", r2_score(group_by_df[sensor_name], predicted_list))
-    print("explained variance score", explained_variance_score(group_by_df[sensor_name], predicted_list))
-    rmse = np.sqrt(mean_squared_error(group_by_df[sensor_name], predicted_list))
-    print(bcolors.WARNING + "RMS for polynomial regression=", rmse, bcolors.ENDC)
-    return mean_squared_error(group_by_df[sensor_name], predicted_list)
+    print(bcolors.OKBLUE + "MSE " + regression_type + " regression(mean squared error)",
+          mean_squared_error(dataframe_name[sensor_name], predicted_list), bcolors.ENDC)
+    print("r2 score ", r2_score(dataframe_name[sensor_name], predicted_list))
+    rmse = np.sqrt(mean_squared_error(dataframe_name[sensor_name], predicted_list))
+    print(bcolors.WARNING + "RMS for " + regression_type + " regression=", rmse, bcolors.ENDC)
+    return mean_squared_error(dataframe_name[sensor_name], predicted_list)
 
 
 # calculate maximum polynomial grade
@@ -162,7 +158,8 @@ for count, degree in enumerate([i + 1 for i in range(0, max_grade)]):
     X_poly = poly_reg.fit_transform(X_train)
     pol_reg = LinearRegression()
     pol_reg.fit(X_poly, y_train)
-    mse_list.append(analyse_forecast())
+    print("TYPE ", type(pol_reg.predict(poly_reg.fit_transform(X))))
+    mse_list.append(analyse_forecast(group_by_df,pol_reg.predict(poly_reg.fit_transform(X)), "polynomial"))
     # create dataframe with predicted values for given month(30 values)
     group_by_df['predicted'] = pol_reg.predict(poly_reg.fit_transform(X))
 
@@ -193,12 +190,17 @@ fig.update_layout(
     showlegend=True)
 fig.show()
 
+
 # create dataframe with mse values and corresponding polynomial grade
-mse_df = pd.DataFrame(mse_list)
-mse_df.columns = ['mse_values']
-mse_df['polynomial_grade'] = [i + 1 for i in range(0, max_grade)]
-print(bcolors.OKBLUE + "minimum MSE for given polynomial grades:",
-      mse_df[mse_df['mse_values'] == mse_df['mse_values'].min()], bcolors.ENDC)
+def mse_minumum(regression_type, mse_list_regression, max_grade_regression):
+    mse_df = pd.DataFrame(mse_list_regression)
+    mse_df.columns = ['mse_values']
+    mse_df[regression_type + '_grade'] = [i + 1 for i in range(0, max_grade_regression)]
+    print(bcolors.OKBLUE + "minimum MSE for given " + regression_type + " grades:",
+          mse_df[mse_df['mse_values'] == mse_df['mse_values'].min()], bcolors.ENDC)
+
+
+mse_minumum("polynomial", mse_list, max_grade)
 
 # calculate and plot spline regression
 # calculate 25%,50% and 75% percentiles
@@ -206,32 +208,38 @@ percentile_25 = np.percentile(group_by_df['day'], 25)
 percentile_50 = np.percentile(group_by_df['day'], 50)
 percentile_75 = np.percentile(group_by_df['day'], 75)
 
-# Specifying 3 knots for regression spline
-transformed_x1 = dmatrix(
-    "bs(group_by_df.day, knots=(percentile_25,percentile_50,percentile_75), degree=20, include_intercept=False)",
-    {"group_by_df.day": group_by_df.day}, return_type='dataframe')
-
-# build a regular linear model from the splines
-fit_spline = sm.GLM(group_by_df[sensor_name], transformed_x1).fit()
-
-# make predictions
-pred_spline = fit_spline.predict(transformed_x1)
-
 # plot regression spline
+print(bcolors.UNDERLINE + "\nSPLINE REGRESSION ACCURACY:\n" + bcolors.ENDC)
+
 fig3 = go.Figure()
-group_by_df['day'] = group_by_df['day'].map(dt.datetime.fromordinal)
+mse_list_spline = []
+for count, degree in enumerate([i + 1 for i in range(0, max_grade)]):
+    # Specifying 3 knots for regression spline
+    transformed_x1 = dmatrix(
+        "bs(group_by_df.day, knots=(percentile_25,percentile_50,percentile_75), degree=degree, include_intercept=False)",
+        {"group_by_df.day": group_by_df.day}, return_type='dataframe')
+
+    # build a regular linear model from the splines
+    fit_spline = sm.GLM(group_by_df[sensor_name], transformed_x1).fit()
+
+    # make predictions
+    pred_spline = fit_spline.predict(transformed_x1)
+
+    print('\ngrade for regression spline: ', degree)
+    mse_list_spline.append(analyse_forecast(group_by_df,pred_spline.values, "spline"))
+
+    fig3.add_trace(go.Scatter(
+        x=group_by_df['day'].map(dt.datetime.fromordinal),
+        y=pred_spline,
+        name="Predicted values grade " + str(degree),
+        mode='lines+markers'
+    ))
+
 fig3.add_trace(go.Scatter(
-    x=group_by_df['day'],
+    x=group_by_df['day'].map(dt.datetime.fromordinal),
     y=group_by_df[sensor_name],
     name='Actual values',
     mode='lines+markers'))
-
-fig3.add_trace(go.Scatter(
-    x=group_by_df['day'],
-    y=pred_spline,
-    name="Predicted values",
-    mode='lines+markers'
-))
 
 fig3.update_layout(
     title="Regression Spline for " + sensor_name,
@@ -240,11 +248,4 @@ fig3.update_layout(
     showlegend=True)
 fig3.show()
 
-# calculate regression accuracy
-print(bcolors.UNDERLINE + "\nSPLINE REGRESSION ACCURACY:\n" + bcolors.ENDC)
-mse1 = mean_squared_error(group_by_df[sensor_name], pred_spline)
-print(bcolors.OKBLUE + "MSE spline regression(mean squared error)", mse1, bcolors.ENDC)
-rms1 = sqrt(mean_squared_error(group_by_df[sensor_name], pred_spline))
-print(bcolors.WARNING + "RMS for regression spline=", rms1, bcolors.ENDC)
-print("r2 score for regression spline", r2_score(group_by_df[sensor_name], pred_spline))
-print(pred_spline)
+mse_minumum("spline", mse_list_spline, max_grade)
