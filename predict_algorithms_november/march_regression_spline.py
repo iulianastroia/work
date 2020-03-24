@@ -9,8 +9,6 @@ from plotly import graph_objs as go
 from sklearn.metrics import mean_squared_error, r2_score
 from sklearn.model_selection import train_test_split
 
-# fct to create correlation graph and best fit line for given degree
-
 register_matplotlib_converters()
 
 # read csv file
