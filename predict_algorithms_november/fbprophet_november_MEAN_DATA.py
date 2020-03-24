@@ -1,15 +1,19 @@
-import pandas as pd
 import logging
+
+import numpy as np
+import pandas as pd
 from fbprophet import Prophet
 from fbprophet.plot import plot_plotly, plot_components_plotly
 from plotly import graph_objs as go
-import numpy as np
-from sklearn.metrics import mean_absolute_error, mean_squared_error
+from sklearn.metrics import mean_squared_error, r2_score
+from sklearn.model_selection import train_test_split
 
-# read csv
-# november data
-data = pd.read_csv("https://raw.githubusercontent.com/iulianastroia/csv_data/master/final_dataframe.csv")
-print("LEN", len(data))
+pd.options.mode.chained_assignment = None
+
+# data = pd.read_csv("final_dataframe.csv")
+
+data = pd.read_csv("https://raw.githubusercontent.com/iulianastroia/csv_data/master/march_data.csv")
+
 # drop Nan columns and indexes
 data.dropna(axis='columns', how='all', inplace=True)
 data.dropna(axis='index', how='all', inplace=True)
@@ -18,7 +22,7 @@ data.dropna(axis='index', how='all', inplace=True)
 data['day'] = pd.to_datetime(data['day'], dayfirst=True)
 
 # modify name with any sensor name from df
-sensor_name = 'pm25'
+sensor_name = 'ch2o'
 
 # sort dates by day
 data = data.sort_values(by=['day'])
@@ -27,19 +31,11 @@ print("sorted days", data.day)
 group_by_df = pd.DataFrame(
     [name, group.mean()[sensor_name]] for name, group in data.groupby('day')
 )
-group_by_df.columns = ['day', sensor_name]
 
-# plot groupby df
-fig = go.Figure(data=go.Scatter(x=group_by_df['day'], y=group_by_df[sensor_name]))
-fig.update_layout(
-    title=sensor_name + ' REAL mean values for November',
-    xaxis_title="Day",
-    yaxis_title=sensor_name)
-fig.show()
+group_by_df.columns = ['day', sensor_name]
 
 # group df by day
 grp_date = data.groupby('day')
-
 # calculate mean value  for every given day
 data = pd.DataFrame(grp_date.mean())
 print("MEAN " + sensor_name + " values by day\n", data[sensor_name])
@@ -47,21 +43,56 @@ print("MEAN " + sensor_name + " values by day\n", data[sensor_name])
 # select needed data
 data = data[[sensor_name]]
 
+# boxplot values to eliminate outliers
+upper_quartile = np.percentile(data[sensor_name], 75)
+lower_quartile = np.percentile(data[sensor_name], 25)
+
+iqr = upper_quartile - lower_quartile
+upper_whisker = data[sensor_name][data[sensor_name] <= upper_quartile + 1.5 * iqr].max()
+lower_whisker = data[sensor_name][data[sensor_name] >= lower_quartile - 1.5 * iqr].min()
+
+# todo eliminate outliers detected by boxplot
+# data = data.loc[
+#     (data[sensor_name] >= lower_whisker) & (data[sensor_name] <= upper_whisker)]
+# print("new df issss", data)
+# todo eliminate outliers detected by boxplot
+# group_by_df = group_by_df.loc[
+#     (group_by_df[sensor_name] >= lower_whisker) & (group_by_df[sensor_name] <= upper_whisker)]
+# print("new df is", group_by_df)
+
+
 # start using prophet
 logging.getLogger().setLevel(logging.ERROR)
 
 # create df for prophet
 df = data.reset_index()
-# ds=date, y=pm2.5 values
+
 df.columns = ['ds', 'y']
-print(df)
+
+X = group_by_df[['day']].values
+y = group_by_df[[sensor_name]].values
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, shuffle=False)
+
+# todo use X_train and y_test for march(test values from 11 March)
+# X_train = X[:10]
+# y_train = y[:10]
+# X_test = X[10:]
+# y_test = y[10:]
+
+# create dataframe containing only train values
+dff = pd.DataFrame(index=range(0, len(y_train)))
+
+dff['ds'] = group_by_df['day'][:len(y_train)]
+dff['y'] = group_by_df[sensor_name][:len(y_train)]
 
 m = Prophet()
-m.fit(df)
+# fit train values to prophet
+m.fit(dff)
 
-# make predictions for november, periods=0 because we don't want predictions for another month
-future = m.make_future_dataframe(periods=0)
+# predict whole month
+future = m.make_future_dataframe(periods=len(y_test))
 forecast = m.predict(future)
+print('forecast', forecast)
 # print only values of interest
 print(forecast[['ds', 'yhat', 'yhat_lower', 'yhat_upper']])
 
@@ -86,8 +117,11 @@ def make_comparison_dataframe(historical, forecast):
     return forecast.set_index('ds')[['yhat', 'yhat_lower', 'yhat_upper']].join(historical.set_index('ds'))
 
 
+# modify dff so that mse can be calculated for each value of the dataframe
+dff['ds'] = group_by_df['day']
+dff['y'] = group_by_df[sensor_name]
+# cmp_df = make_comparison_dataframe(df, forecast)
 cmp_df = make_comparison_dataframe(df, forecast)
-print("COMPARED DF of predicted and real values\n", cmp_df)
 
 # add new column with default value
 cmp_df['outlier_detected'] = 0
@@ -97,8 +131,6 @@ for i in range(len(cmp_df)):
         cmp_df['outlier_detected'][i] = 1
     else:
         cmp_df['outlier_detected'][i] = 0
-print("DF of outlier", cmp_df)
-print(["outlier DET" for i in range(len(cmp_df)) if cmp_df['outlier_detected'][i] == 1])
 
 # plot forecast with upper and lower bound
 fig = go.Figure()
@@ -160,13 +192,56 @@ def mean_absolute_percentage_error(y_true, y_pred):
     return np.mean(np.abs((y_true - y_pred) / y_true)) * 100
 
 
-# don't take january values into consideration at MAPE and MAE
 cmp_df = cmp_df.dropna()
-print("MAPE ", mean_absolute_percentage_error(cmp_df['y'], cmp_df['yhat']))
-print("MAE", mean_absolute_error(cmp_df['y'], cmp_df['yhat']))
 
 forecast_errors = [abs(cmp_df['y'][i] - cmp_df['yhat'][i]) for i in range(len(cmp_df))]
 print('Forecast Errors: ', forecast_errors)
 print('MAX Forecast Error: %s' % max(forecast_errors))
 print('MIN Forecast Error: %s' % min(forecast_errors))
-print("MSE(mean squared error)", mean_squared_error(cmp_df['y'], cmp_df['yhat']))
+
+rmse = np.sqrt(mean_squared_error(cmp_df['y'], cmp_df['yhat']))
+print("MSE is ", mean_squared_error(cmp_df['y'], cmp_df['yhat']))
+print("rmse is ", rmse)
+print("r2 score ", r2_score(cmp_df['y'], cmp_df['yhat']))  # around 1
+
+
+def correlation_line(df, x, y):
+    scatter_data = go.Scattergl(
+        x=df[x],
+        y=df[y],
+        mode='markers',
+        name=x + ' and ' + y + ' correlation'
+    )
+
+    layout = go.Layout(
+        xaxis=dict(
+            title=x
+        ),
+        yaxis=dict(
+            title=y)
+    )
+
+    # calculate best fit line
+    denominator = (df[x] ** 2).sum() - df[x].mean() * df[x].sum()
+    print('denominator', denominator)
+    m = ((df[y] * df[x]).sum() - df[y].mean() * df[x].sum()) / denominator
+    b = ((df[y].mean() * ((df[x] ** 2).sum())) - df[x].mean() * ((df[y] * df[x]).sum())) / denominator
+    best_fit_line = m * df[x] + b
+
+    best_fit_line = go.Scattergl(
+        x=df[x],
+        y=best_fit_line,
+        name='Line of best fit',
+        line=dict(
+            color='red'
+        )
+    )
+
+    data = [scatter_data, best_fit_line]
+    figure = go.Figure(data=data, layout=layout)
+
+    figure.show()
+
+
+# yhat and y
+correlation_line(cmp_df, cmp_df.columns[0], cmp_df.columns[3])
